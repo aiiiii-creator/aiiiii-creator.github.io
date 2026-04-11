@@ -6,39 +6,40 @@ permalink: /about/
 
 ## Profile
 
-Chenyang Ai is a master's student in Integrated Circuit Science and Engineering at Peking University.
-His research focuses on ML accelerator architecture, tensor compiler systems, and hardware/software
-co-design for neural network workloads. He is particularly interested in programmable vector and
-systolic execution models, MLIR-based compilation flows, and analytical methods for studying the
-generality and utilization of machine learning accelerators.
+Chenyang Ai is currently a PhD student at the Institute for Computing Systems Architecture (ICSA),
+School of Informatics, University of Edinburgh. His research is centered on hardware microarchitecture
+and combines software scheduling, architecture exploration, and approximate computing to improve how
+systems execute LLMs, CNNs, and other workloads that are dominated by tensor operators.
 
 ## Contact
 
 - Email: [chenyang_ai@stu.pku.edu.cn](mailto:chenyang_ai@stu.pku.edu.cn)
-- Location: Beijing, China
-- CV: <a href="{{ '/Chenyang_Ai_FlowCV_Resume_2026-04-11.pdf' | relative_url }}">Chenyang_Ai_FlowCV_Resume_2026-04-11.pdf</a>
+- Location: Edinburgh, United Kingdom
 - GitHub: [aiiiii-creator](https://github.com/aiiiii-creator)
 
 ## Research Interests
 
-- Neural network hardware/software co-design
-- Tensor compiler workflows and MLIR
-- Microarchitecture of VPU, GPU, NPU, and CGRA-style accelerators
-- Chiplet-oriented design space exploration
+- Hardware microarchitecture for tensor-operator workloads
+- Software scheduling for accelerator systems
+- Architecture exploration across models, operators, and dataflows
+- Approximate computing for efficiency-accuracy tradeoffs
+- Hardware/software co-design for LLMs, CNNs, and related domains
 
 ## Education
 
 <div class="timeline">
   <div class="timeline-item">
-    <p class="timeline-date">Sep 2022 - Present</p>
-    <h3>Peking University</h3>
-    <p>Master's Degree in Integrated Circuit Science and Engineering, Beijing, China.</p>
-    <p>Graduate recommended admission qualification.</p>
+    <p class="timeline-date">Present</p>
+    <h3>University of Edinburgh</h3>
+    <p>PhD student, Institute for Computing Systems Architecture (ICSA), School of Informatics.</p>
   </div>
   <div class="timeline-item">
-    <p class="timeline-date">Sep 2018 - Jun 2022</p>
+    <h3>Peking University</h3>
+    <p>Master's Degree in Integrated Circuit Science and Engineering.</p>
+  </div>
+  <div class="timeline-item">
     <h3>Chongqing University of Posts and Telecommunications</h3>
-    <p>Bachelor's Degree in Microelectronics Science and Engineering, Chongqing, China.</p>
+    <p>Bachelor's Degree in Microelectronics Science and Engineering.</p>
     <p>GPA 3.79/4.0, ranked 1/35.</p>
   </div>
 </div>

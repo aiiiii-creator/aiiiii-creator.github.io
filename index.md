@@ -3,20 +3,21 @@ layout: home
 ---
 
 <section class="hero">
-  <p class="eyebrow">CHENYANG AI</p>
-  <h1>ML accelerator architecture, compiler systems, and hardware/software co-design.</h1>
+  <h1>Chenyang Ai</h1>
   <p class="lead">
-    I am a master's student in Integrated Circuit Science and Engineering at Peking University.
-    My recent work spans vector and systolic architectures, tensor compiler workflows based on MLIR,
-    and analytical frameworks for understanding the generality of ML accelerators.
+    I am currently a PhD student at the Institute for Computing Systems Architecture (ICSA),
+    School of Informatics, University of Edinburgh. My research centers on hardware microarchitecture
+    and combines software scheduling, architecture exploration, and approximate computing to
+    co-optimize systems for LLMs, CNNs, and other tensor-operator workloads.
   </p>
   <div class="meta-row">
-    <span class="meta-pill">Peking University</span>
-    <span class="meta-pill">Beijing, China</span>
+    <span class="meta-pill">PhD Student</span>
+    <span class="meta-pill">ICSA, School of Informatics</span>
+    <span class="meta-pill">University of Edinburgh</span>
     <a class="meta-pill" href="mailto:chenyang_ai@stu.pku.edu.cn">chenyang_ai@stu.pku.edu.cn</a>
   </div>
   <div class="hero-actions">
-    <a class="button button-primary" href="{{ '/Chenyang_Ai_FlowCV_Resume_2026-04-11.pdf' | relative_url }}">Download CV</a>
+    <a class="button button-primary" href="{{ '/about/' | relative_url }}">About</a>
     <a class="button" href="{{ '/projects/' | relative_url }}">Selected Projects</a>
     <a class="button" href="{{ '/publications/' | relative_url }}">Publications</a>
   </div>
@@ -26,54 +27,49 @@ layout: home
   <h2>Research Focus</h2>
   <div class="card-grid">
     <article class="info-card">
-      <h3>NN Hardware/Software Co-design</h3>
-      <p>Architecture exploration across model, compiler, and hardware boundaries for efficient ML execution.</p>
+      <h3>Hardware Microarchitecture</h3>
+      <p>Architecture design centered on efficient execution of tensor-heavy workloads across modern accelerators.</p>
     </article>
     <article class="info-card">
-      <h3>Tensor Compiler and MLIR</h3>
-      <p>Compilation flows that lower tensor operators into executable kernels and map them onto heterogeneous accelerators.</p>
+      <h3>Software Scheduling</h3>
+      <p>Cross-layer scheduling strategies that map computation, dataflow, and resources onto practical systems.</p>
     </article>
     <article class="info-card">
-      <h3>VPU, GPU, NPU, CGRA</h3>
-      <p>Microarchitectural analysis of programmable and spatial accelerators for diverse tensor operators.</p>
+      <h3>Architecture Exploration</h3>
+      <p>Design-space studies that compare implementation tradeoffs across different operators, models, and execution styles.</p>
     </article>
     <article class="info-card">
-      <h3>Chiplet Design Space Exploration</h3>
-      <p>Cross-layer studies on utilization, scalability, and the system-level tradeoffs of emerging accelerator organizations.</p>
+      <h3>Approximate Computing</h3>
+      <p>Accuracy-efficiency tradeoff analysis for systems that target LLMs, CNNs, and other tensor-operator domains.</p>
     </article>
   </div>
 </section>
 
 <section class="home-section split-section">
   <div>
-    <h2>Current Work</h2>
-    <div class="timeline">
-      <div class="timeline-item">
-        <p class="timeline-date">Mar 2024 - Present</p>
-        <h3>Tensor Train Full-Process Accelerator for LLMs</h3>
-        <p>Exploring TT decomposition and dedicated architectures that accelerate both factorization and vector-matrix operations during decoding.</p>
-      </div>
-      <div class="timeline-item">
-        <p class="timeline-date">Apr 2024 - Present</p>
-        <h3>Analysis Framework for the Generality of ML Accelerators</h3>
-        <p>Building a tensor-algebra-based framework to search for effective hardware configurations across arbitrary operator ranges.</p>
-      </div>
-      <div class="timeline-item">
-        <p class="timeline-date">Jan 2024 - Jun 2024</p>
-        <h3>Heterogeneous SoC Compiler Based on MLIR</h3>
-        <p>Mapped tensor contractions to matrix multiplication and built an MLIR-based toolchain for scheduling kernels across accelerators.</p>
-      </div>
-    </div>
+    <h2>Current Position</h2>
+    <p class="section-text">
+      My current work is anchored in hardware microarchitecture and extends upward into software
+      scheduling and system-level optimization. The goal is to build coherent hardware/software
+      co-design methods rather than treating architecture, compilation, and approximation as
+      separate problems.
+    </p>
+    <ul class="status-list">
+      <li>PhD student at the Institute for Computing Systems Architecture (ICSA).</li>
+      <li>Working within the School of Informatics at the University of Edinburgh.</li>
+      <li>Targeting LLMs, CNNs, and other workloads built around tensor operators.</li>
+      <li>Interested in balancing efficiency, programmability, and model quality.</li>
+    </ul>
   </div>
   <div class="highlight-panel">
-    <p class="highlight-label">HIGHLIGHTS</p>
-    <h3>Selected snapshots</h3>
+    <p class="highlight-label">CURRENT THEMES</p>
+    <h3>Core directions</h3>
     <ul class="status-list">
-      <li>Master's student at Peking University since September 2022.</li>
-      <li>Two DAC 2025 papers currently under review.</li>
-      <li>CCF CHIP'24 paper invited for journal extension.</li>
-      <li>Ranked 1/35 in undergraduate major with GPA 3.79/4.0.</li>
-      <li>National competition awards in IC design, speech, and sign-language acceleration.</li>
+      <li>Microarchitecture-driven accelerator design.</li>
+      <li>Scheduling-aware hardware/software co-optimization.</li>
+      <li>Architecture exploration across different model and operator patterns.</li>
+      <li>Approximate computing for efficient tensor processing.</li>
+      <li>Research that connects theory, systems, and implementation tradeoffs.</li>
     </ul>
     <a class="inline-link" href="{{ '/about/' | relative_url }}">Full profile</a>
   </div>

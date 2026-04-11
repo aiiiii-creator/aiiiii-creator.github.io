@@ -17,7 +17,6 @@
 - `publications.md`: 论文页
 - `assets/main.scss`: 自定义样式
 - `.github/workflows/pages.yml`: 自动部署工作流
-- `Chenyang_Ai_FlowCV_Resume_2026-04-11.pdf`: 简历 PDF
 
 ## 发布方法
 

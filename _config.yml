@@ -1,9 +1,11 @@
 title: Chenyang Ai
-description: Research profile focused on ML accelerator architecture, HW/SW co-design, and compiler systems.
+description: PhD profile focused on hardware microarchitecture, software scheduling, architecture exploration, and approximate computing.
 theme: minima
 lang: en
 url: "https://aiiiii-creator.github.io"
 baseurl: ""
+exclude:
+  - Chenyang_Ai_FlowCV_Resume_2026-04-11.pdf
 
 author:
   name: Chenyang Ai
