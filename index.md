@@ -74,27 +74,3 @@ layout: home
     <a class="inline-link" href="{{ '/about/' | relative_url }}">Full profile</a>
   </div>
 </section>
-
-<section class="home-section">
-  <h2>Selected Publications</h2>
-  <div class="publication-list">
-    <article class="publication-item">
-      <p class="project-tag">UNDER REVIEW</p>
-      <h3>MPTVPU: A RISC-V VPU Could Solve the Problems of Precision and Tensor</h3>
-      <p>Chenyang Ai, Lechuan Zhao, Zhijie Huang, Cangyuan Li, Xinan Wang, Ying Wang</p>
-      <p>DAC 2025 submission. <a href="https://arxiv.org/abs/2405.02196">arXiv</a></p>
-    </article>
-    <article class="publication-item">
-      <p class="project-tag">UNDER REVIEW</p>
-      <h3>What Is Relationships between Utilization and Generality of Systolic Array: Insights and Solution</h3>
-      <p>Chenyang Ai*, Lechuan Zhao*, Xinan Wang, Ying Wang</p>
-      <p>DAC 2025 submission focused on utilization and generality tradeoffs in systolic arrays.</p>
-    </article>
-    <article class="publication-item">
-      <p class="project-tag">INVITED EXTENSION</p>
-      <h3>HVSA: A Deeply Hybrid Vector Systolic Architecture with Dynamically Reconfigurable Dataflow</h3>
-      <p>Chenyang Ai*, Lechuan Zhao*, Xinan Wang, Ying Wang</p>
-      <p>Presented at CCF CHIP'24 in Chinese and invited for a further submission to Journal of Computer Science and Technology.</p>
-    </article>
-  </div>
-</section>
