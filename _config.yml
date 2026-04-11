@@ -1,0 +1,18 @@
+title: Chenyang Ai
+description: Research profile focused on ML accelerator architecture, HW/SW co-design, and compiler systems.
+theme: minima
+lang: en
+url: "https://aiiiii-creator.github.io"
+baseurl: ""
+
+author:
+  name: Chenyang Ai
+
+header_pages:
+  - about.md
+  - projects.md
+  - publications.md
+
+minima:
+  social_links:
+    - { platform: github, user_url: "https://github.com/aiiiii-creator" }
