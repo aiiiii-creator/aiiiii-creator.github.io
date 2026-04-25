@@ -4,7 +4,6 @@ layout: home
 
 <section class="hero">
   <p class="eyebrow">CHENYANG AI</p>
-  <h1>ML accelerator architecture, 3D-stacked near-memory processing, and approximate hardware design.</h1>
   <p class="lead">
     PhD student at the Institute for Computing Systems Architecture (ICSA),
     School of Informatics, University of Edinburgh. Supervised by Dr. Jianyi Cheng,
