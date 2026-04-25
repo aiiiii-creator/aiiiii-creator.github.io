@@ -12,6 +12,13 @@ header_pages:
   - about.md
   - projects.md
   - publications.md
+  - articles.md
+
+exclude:
+  - article/
+  - vendor/
+  - Gemfile
+  - Gemfile.lock
 
 minima:
   social_links:
