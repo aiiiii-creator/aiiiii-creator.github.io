@@ -6,9 +6,8 @@ layout: home
   <p class="eyebrow">CHENYANG AI</p>
   <p class="lead">
     PhD student at the Institute for Computing Systems Architecture (ICSA),
-    School of Informatics, University of Edinburgh. Supervised by Dr. Jianyi Cheng,
-    with Prof. Nigel Topham (Edinburgh) and Prof. George A. Constantinides
-    (Imperial College London) as second supervisors. Expected graduation 2028.
+    School of Informatics, University of Edinburgh. Supervised by
+    Prof. Nigel Topham. Expected graduation 2028.
   </p>
   <div class="meta-row">
     <span class="meta-pill">ICSA · University of Edinburgh</span>
