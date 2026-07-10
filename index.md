@@ -31,13 +31,13 @@ layout: home
     </div>
     <div class="timeline-item">
       <p class="timeline-date">2026</p>
-      <h3>Three papers under review</h3>
-      <p>SNAKE at MICRO 2026; GPNPU and Approximate E-graph Rewriting at ASPLOS 2027.</p>
+      <h3>Two papers under review</h3>
+      <p>SNAKE at MICRO 2026; GPNPU at ASPLOS 2027.</p>
     </div>
     <div class="timeline-item">
       <p class="timeline-date">Sep 2025</p>
       <h3>Started PhD at the University of Edinburgh</h3>
-      <p>Joined ICSA, School of Informatics, working with Dr. Jianyi Cheng on accelerator architecture and approximate hardware design.</p>
+      <p>Joined ICSA, School of Informatics, working with Prof. Nigel Topham on accelerator architecture for LLM inference.</p>
     </div>
     <div class="timeline-item">
       <p class="timeline-date">Jun 2025</p>
@@ -53,10 +53,6 @@ layout: home
     <article class="info-card">
       <h3>3D-Stacked Near-Memory Processing</h3>
       <p>Compute substrates and scheduling frameworks for LLM decoding on 3D-stacked NMP, co-designing reconfigurable systolic arrays with multi-core orchestration.</p>
-    </article>
-    <article class="info-card">
-      <h3>Approximate Hardware Refinement</h3>
-      <p>E-graph rewriting combined with interval analysis and Lipschitz-based error propagation to explore accuracy, area, and energy trade-offs in datapath design.</p>
     </article>
     <article class="info-card">
       <h3>General-Purpose Tensor Accelerators</h3>
@@ -84,12 +80,6 @@ layout: home
       <h3>GPNPU: A General-Purpose NPU Architecture for Multi-Precision and Cross-Domain Tensor Operators</h3>
       <p>Chenyang Ai, et al.</p>
       <p>6.45× / 3.39× / 25.83× speedup over VPU / GPGPU / CGRA baselines, combining a multi-precision reconfigurable array with an MLIR-based compilation flow.</p>
-    </article>
-    <article class="publication-item">
-      <p class="project-tag">ASPLOS 2027 · Under Review</p>
-      <h3>Approximate E-graph Rewriting for Hardware Refinement</h3>
-      <p>Chenyang Ai, Jianyi Cheng, et al.</p>
-      <p>Equality saturation extended with approximate rewrites; interval analysis plus Lipschitz-bounded error propagation drive ILP-based hardware extraction.</p>
     </article>
   </div>
   <p style="margin-top: 1.5rem;"><a class="inline-link" href="{{ '/publications/' | relative_url }}">See all publications →</a></p>

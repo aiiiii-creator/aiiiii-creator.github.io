@@ -4,7 +4,7 @@ title: Publications
 permalink: /publications/
 ---
 
-<p class="note-text">All three papers below are currently under review. Publication status as of April 2026.</p>
+<p class="note-text">Both papers below are currently under review. Publication status as of April 2026.</p>
 
 <div class="publication-list">
   <article class="publication-item">
@@ -23,12 +23,5 @@ permalink: /publications/
     <h2>GPNPU: A General-Purpose Neural Processing Unit Architecture for Multi-Precision and Cross-Domain Tensor Operators</h2>
     <p>Chenyang Ai, et al.</p>
     <p>A multi-precision reconfigurable tensor substrate and MLIR-based compilation framework that extends NPUs toward cross-domain tensor computing, with 6.45× / 3.39× / 25.83× speedup over VPU / GPGPU / CGRA baselines.</p>
-  </article>
-
-  <article class="publication-item">
-    <p class="project-tag">ASPLOS 2027 · Under Review</p>
-    <h2>Approximate E-graph Rewriting for Hardware Refinement</h2>
-    <p>Chenyang Ai, Jianyi Cheng, et al.</p>
-    <p>An e-graph-based approximate rewriting framework that combines interval analysis with Lipschitz-bounded error propagation to explore area–accuracy trade-offs in datapath synthesis.</p>
   </article>
 </div>

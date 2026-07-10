@@ -7,11 +7,9 @@ permalink: /about/
 ## Profile
 
 Chenyang Ai is a PhD student at the **Institute for Computing Systems Architecture (ICSA),
-School of Informatics, University of Edinburgh**, supervised by **Dr. Jianyi Cheng**,
-with **Prof. Nigel Topham** (Edinburgh) and **Prof. George A. Constantinides**
-(Imperial College London) as second supervisors. His research focuses on compute
-substrates for LLM inference on 3D-stacked near-memory architectures, approximate
-hardware refinement via e-graphs, and general-purpose tensor accelerator design.
+School of Informatics, University of Edinburgh**, supervised by **Prof. Nigel Topham**.
+His research focuses on compute substrates for LLM inference on 3D-stacked near-memory
+architectures and general-purpose tensor accelerator design.
 He is expected to graduate in 2028.
 
 ## Contact
@@ -26,7 +24,6 @@ He is expected to graduate in 2028.
 ## Research Interests
 
 - 3D-stacked near-memory processing and compute substrates for LLM inference
-- Approximate computing and e-graph-based hardware refinement
 - Multi-precision tensor accelerator microarchitecture
 - MLIR-based compilation and scheduling for heterogeneous accelerators
 - LLM-driven automatic chip generation
@@ -38,7 +35,7 @@ He is expected to graduate in 2028.
     <p class="timeline-date">Sep 2025 - 2028 (expected)</p>
     <h3>University of Edinburgh</h3>
     <p>PhD in Informatics, Institute for Computing Systems Architecture (ICSA), School of Informatics.</p>
-    <p>Supervisor: Dr. Jianyi Cheng. Second supervisors: Prof. Nigel Topham (Edinburgh), Prof. George A. Constantinides (Imperial College London).</p>
+    <p>Supervisor: Prof. Nigel Topham.</p>
   </div>
   <div class="timeline-item">
     <p class="timeline-date">Sep 2022 - Jun 2025</p>

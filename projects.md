@@ -18,15 +18,6 @@ permalink: /projects/
   </article>
 
   <article class="project-card">
-    <p class="project-tag">ASPLOS 2027 · Under Review</p>
-    <h2>Approximate E-graph Rewriting for Hardware Refinement</h2>
-    <p><strong>Role:</strong> Lead author, with Dr. Jianyi Cheng.</p>
-    <p>An e-graph-based framework that co-explores exact and approximate rewrites within a unified abstraction, enabling datapath refinement under configurable accuracy budgets.</p>
-    <p>The framework combines interval analysis with Lipschitz-based error propagation to bound compositional approximation errors, and formulates hardware extraction as an ILP problem over area and error.</p>
-    <p>Benchmarks cover Herbie numerical kernels as well as dot-product and constant-weight accumulation patterns commonly found in ML and DSP datapaths.</p>
-  </article>
-
-  <article class="project-card">
     <p class="project-tag">2025 - Present</p>
     <h2>LLM-Based Automatic Chip Generation</h2>
     <p><strong>Role:</strong> Lead researcher.</p>
