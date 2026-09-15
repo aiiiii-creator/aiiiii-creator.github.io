@@ -29,6 +29,8 @@ There are four basic ways to reduce data movement:
 - **Movement**: overlap transfers with compute through double buffering, software pipelining, and multiple concurrent DMA engines.
 - **Reuse / Fusion**: make every byte brought on-chip do as much work as possible, through operator fusion, loop reordering, and recomputation.
 
+![The four levers. Every one of them is aimed at the same product: the time and the energy it costs to move a byte.](/assets/images/posts/npu-compiler-memory-optimization/01-four-levers.png)
+
 ## 1. Layout
 
 Layout is the byte order in which a tensor sits in physical memory. One logical tensor can have many layouts; they are mathematically equivalent, and they can differ by tens of times in hardware access efficiency.
@@ -51,6 +53,8 @@ Shape (N, C, H, W); covers vision models, the visual front end of diffusion mode
 
 Consider a 16-lane MAC array that consumes the 16 channel values at one (h, w) position per cycle. With NHWC data, the 16 channels of pixel (h, w) are 16 contiguous elements; the MAC reads a contiguous run from one base address and has everything in one cycle. With NCHW, those 16 channels sit at 16 addresses spaced H×W elements apart: either 16 serial reads, cutting throughput to 1/16, or spreading across the SRAM's 16 banks — but a regular large stride usually lands every access in the same bank, and serialization is unavoidable.
 
+![The same tensor and the same MAC array. Only the byte order changed, and with it whether one cycle gets its sixteen values or sixteen.](/assets/images/posts/npu-compiler-memory-optimization/02-nhwc-vs-nchw.png)
+
 ### Attention / KV cache
 
 Shape (B, H, S, D); covers Transformer attention.
@@ -65,6 +69,8 @@ Tiling means cutting a large tensor into blocks along one or more dimensions and
 
 An NPU's memory hierarchy typically runs: off-chip memory (GB), L1 (MB), L0A / L0B / L0C (tens to hundreds of KB), registers (KB). Each level down loses one to three orders of magnitude of capacity and gains bandwidth and access granularity. The intermediate activations of a batch-16 ResNet-50 are tens of MB; the intermediate of a single LLaMA-7B FFN layer is hundreds of MB. None of it fits whole into L1, let alone L0. Tiling isn't an optimization — it's the precondition for data reaching the compute unit at all.
 
+![Each level down loses one to three orders of magnitude of capacity. Nothing of interest fits whole.](/assets/images/posts/npu-compiler-memory-optimization/03-memory-hierarchy.png)
+
 Tile size is set by four constraints together:
 
 1. **Capacity**: the tile's bytes must fit the target level. In GEMM, three tiles (A, B, C) coexist in scratchpad, so Bm·Bk + Bk·Bn + Bm·Bn ≤ L1 capacity.
@@ -73,6 +79,8 @@ Tile size is set by four constraints together:
 4. **Pipeline overlap**: the tile also has to work with double buffering; when L1 is split in half, the usable capacity halves, and tile size is squeezed further.
 
 The four conflict: hardware granularity wants tiles big, capacity wants them small, DMA efficiency wants them big, double buffering wants them small. The NPU compiler runs an integer search under these constraints for a legal, best-performing set of tile sizes.
+
+![Two constraints push the tile smaller, two push it larger, and the workable band is what survives in between.](/assets/images/posts/npu-compiler-memory-optimization/04-tiling-constraints.png)
 
 Again, one from each class.
 
@@ -124,6 +132,8 @@ T0: DMA moves tile 0 into buffer A; the compute unit is idle. T1: DMA moves tile
 
 In steady state, compute and DMA fully overlap; total time is max(compute time, transfer time) rather than their sum. If compute time is at least the DMA time, the DMA is fully hidden, and vice versa.
 
+![Steady-state double buffering. The cost of the overlap is half of L1, which is where the tile-size constraint comes from.](/assets/images/posts/npu-compiler-memory-optimization/05-double-buffering.png)
+
 The price is halved L1 capacity. That is where the "pipeline overlap" constraint on tile size in the previous section comes from: a tile can't fill L1; it has to leave room for its twin.
 
 ### Software pipelining
@@ -138,7 +148,9 @@ Software pipelining on an NPU isn't implicit. On CPUs and GPUs the compiler lean
 
 NPUs usually have several independent DMA paths, each for a different transfer direction or type. Ascend's MTE (Memory Transfer Engine) is split by direction: MTE1 (DDR ↔ L1), MTE2 (L1 ↔ L0), MTE3 (L0C ↔ L1). The three engines are physically independent and can work simultaneously.
 
-That hardware structure makes multi-level pipelining possible. While one tile sits in L0 being consumed by the Cube, the next tile moves from L1 into L0 (MTE2), the one after that moves from DDR into L1 (MTE1), and the previous round's output writes back from L0C to L1 (MTE3). Every segment of the pipeline has its own transfer hardware; none blocks another.
+That hardware structure makes multi-level pipelining possible. While one tile sits in L0 being consumed by the Cube, the next tile moves from L1 into L0 (MTE2), the one after that moves from DDR into L1 (MTE1), and the previous round's output writes back from L0C to L1 (MTE3).
+
+![Four tiles in flight at once, each on its own engine. The compiler has to emit one instruction stream per engine and every barrier between them.](/assets/images/posts/npu-compiler-memory-optimization/06-mte-pipeline.png) Every segment of the pipeline has its own transfer hardware; none blocks another.
 
 The price is that the compiler has to generate a separate instruction stream for each engine and make sure the cross-engine dependencies are expressed correctly through synchronization primitives. In Ascend's ISA, MTE instructions and Cube instructions belong to different pipes, and pipes synchronize through barriers.
 
@@ -180,6 +192,8 @@ A deep-learning model is a chain of many small operators. A typical LayerNorm, e
 
 Fused, the chain becomes one kernel: read the tensor from DDR once, keep every intermediate in registers or L1, write the result back to DDR once. AI goes up an order of magnitude, and DDR traffic drops to 1/N.
 
+![Unfused, the tensor crosses DDR after every operator. Fused, it crosses twice.](/assets/images/posts/npu-compiler-memory-optimization/08-fusion.png)
+
 Fusion boundaries are set by analysis of the compute graph. Typical fusible patterns:
 
 - **Element-wise chains**: several consecutive element-wise operators (add, mul, relu, gelu) merged into one kernel — the simplest kind of fusion.
@@ -198,6 +212,8 @@ For one GEMM, `C[i,j] += A[i,k] * B[k,j]`, the different orderings of the three 
 - **k innermost**: fix (i, j), accumulate along k. C[i, j] stays in a register accumulating while A[i, k] and B[k, j] stream past. That's Output Stationary; each output value is reused K times.
 - **j innermost**: fix (i, k), stream along j. A[i, k] stays in a register while B[k, j] and C[i, j] stream past. Each A value is reused N times.
 - **i innermost**: fix (k, j), stream along i. B[k, j] stays in a register while A[i, k] and C[i, j] stream past. Each B value is reused M times.
+
+![Which operand stays in the register decides which one gets the reuse. Software calls it loop order; a systolic array calls it dataflow.](/assets/images/posts/npu-compiler-memory-optimization/07-stationarity.png)
 
 Which value stays put in a register decides which operand gets the highest reuse. On CPUs and GPUs this is a software choice of loop order; on a systolic array the same decision is welded into the hardware as the Output Stationary, Weight Stationary, and Input Stationary dataflows. It is the same reuse problem — software solves it by reordering loops, hardware solves it with the PE interconnect.
 
