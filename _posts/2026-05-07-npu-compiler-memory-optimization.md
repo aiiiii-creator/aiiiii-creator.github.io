@@ -61,7 +61,9 @@ Shape (B, H, S, D); covers Transformer attention.
 
 In training, D usually sits innermost, which suits the chain of GEMMs and vector ops in Q×K^T, softmax, and A×V. D is the head dimension; the reduction inside a head runs along D, and a contiguous layout gives the best vectorization.
 
-In decode, each step generates one new token and has to read all the accumulated K and V against the new token's Q. S grows over time; pre-allocating a large contiguous region wastes memory, while growing on demand causes constant reallocation. vLLM's PagedAttention cuts (B, H, S, D) along S into fixed-size pages (typically 16 or 32 tokens per page); each page is still contiguous internally, and pages are indexed through a block table. That is a design that couples layout with tiling and memory allocation — still, at bottom, using layout to match the twin constraints of hardware access and memory allocation.
+In decode, each step generates one new token and has to read all the accumulated K and V against the new token's Q. S grows over time; pre-allocating a large contiguous region wastes memory, while growing on demand causes constant reallocation. vLLM's PagedAttention cuts (B, H, S, D) along S into fixed-size pages (typically 16 or 32 tokens per page); each page is still contiguous internally, and pages are indexed through a block table. That is a design that couples layout with tiling and memory allocation
+
+Layout's failure mode never announces itself. Weights arrive already packed and activations arrive in the framework's native order, so the compiler quietly inserts a reformat to reconcile them. It compiles, the numbers come out right, and you pay a DDR round trip per layer that shows up only as profile time attributed to an operator you never wrote. Upstream MLIR can spell that relayout: `linalg.pack` takes `inner_dims_pos`, `inner_tiles` and `outer_dims_perm`, which is a FractalNZ-shaped blocking in one op. What it cannot do is execute it where you need it. `lowerPack` opens with `// TODO: Support Memref PackOp. Temporarily return failure.`, and `TODO: Support Memref` appears 25 times across `lib/Dialect/Linalg`. The relayout is legible above bufferization and inert below it, which is exactly where the scratchpad lives. — still, at bottom, using layout to match the twin constraints of hardware access and memory allocation.
 
 ## 2. Tiling
 
@@ -114,6 +116,8 @@ Tile-size search is usually its own pass in an NPU compiler. Input: the compute 
 
 There are two implementation styles. One is analytic solving on a cost model: list all the constraint equations, take compute × bandwidth utilization as the objective, and solve by integer programming or exhaustive search. That works on regular operators (GEMM, Conv), where the constraints have a closed form. The other is profile-driven autotuning: candidate tile sizes are timed on real hardware and iterated toward the optimum. TVM's auto-scheduler, Triton's autotune, and Huawei CANN's tiling search all belong here.
 
+Tiling fails loudly, and only because somebody wrote the check. Upstream mostly has not. `linalg::promoteSubViews`, the pass that stages a tile into a named memory space, ends its precondition list with `// TODO: Check that the total footprint fits within a given size.` The affine copy generator does carry a budget, and it is instructive about what carrying one gets you: when the buffers exceed `fastMemCapacityBytes` it calls `emitWarning`, returns success, and emits the overflowing code anyway. On a cache that is survivable. On a scratchpad there is no backstop underneath it, so the check that matters is the one you write yourself.
+
 On a GPU, a wrong tile choice usually shows up as lower performance; the run still completes. On an NPU, a tile exceeding L1 capacity fails compilation outright, and a tile violating the MAC divisibility constraint means the Cube won't start. Tiling, like layout, is the textbook case of something going from optimization to precondition.
 
 ## 3. Movement
@@ -146,9 +150,9 @@ Software pipelining on an NPU isn't implicit. On CPUs and GPUs the compiler lean
 
 ### Multiple DMA engines in parallel
 
-NPUs usually have several independent DMA paths, each for a different transfer direction or type. Ascend's MTE (Memory Transfer Engine) is split by direction: MTE1 (DDR ↔ L1), MTE2 (L1 ↔ L0), MTE3 (L0C ↔ L1). The three engines are physically independent and can work simultaneously.
+NPUs usually have several independent DMA paths, each dedicated to a different leg of the route. On Ascend these are the MTE (Memory Transfer Engine) pipes, split by direction: one brings data from off-chip memory into the on-chip buffers, another stages it from L1 down into the L0 operand buffers, and another writes results back out. The engines are physically independent and can work simultaneously.
 
-That hardware structure makes multi-level pipelining possible. While one tile sits in L0 being consumed by the Cube, the next tile moves from L1 into L0 (MTE2), the one after that moves from DDR into L1 (MTE1), and the previous round's output writes back from L0C to L1 (MTE3).
+That hardware structure makes multi-level pipelining possible. While one tile sits in L0 being consumed by the Cube, the next tile moves from L1 into L0, the one after that moves from off-chip memory into L1, and the previous round's output drains out of the accumulator. Each leg is a different engine, so none of them waits on another.
 
 ![Four tiles in flight at once, each on its own engine. The compiler has to emit one instruction stream per engine and every barrier between them.](/assets/images/posts/npu-compiler-memory-optimization/06-mte-pipeline.png) Every segment of the pipeline has its own transfer hardware; none blocks another.
 
@@ -175,6 +179,8 @@ There's an optimal band for tile size: too small and DMA issue overhead dominate
 In an NPU compiler, movement optimization shows up as instruction scheduling. Input: the operator compute graph with layout and tiling done. Output: an instruction sequence with pipe assignments and sync instructions.
 
 The scheduling algorithm is typically list scheduling or modulo scheduling. The former greedily schedules instructions one by one in dependency order — simple, not necessarily optimal. The latter targets loop structures, unrolling the loop into software-pipelined form and solving for the minimum initiation interval (II); on regular operators it can approach the hardware's concurrency ceiling.
+
+Get movement wrong and nothing tells you either. One missing barrier between a transfer pipe and the compute pipe hands the array a half-written buffer: wrong numbers, non-deterministically, passing at test shapes and failing at production ones. A lost wakeup hangs the card instead. Upstream supplies more mechanism here than its reputation suggests. `transform.loop.pipeline` ships a target-independent modulo scheduler that assigns cycles by dependence and wraps them modulo the II, and it composes with `memref::multiBuffer` for the buffer expansion. What it does not ship is a latency model. The long latency is attached to vector transfers, a copy op is invisible to it, and `memref.dma_start` is created by the affine lowering and consumed by nothing downstream. The skew is free. Every cycle count and every wait is yours.
 
 A GPU compiler leans on hardware out-of-order execution to hide most scheduling problems, and software pipelining on a GPU counts as performance tuning. On an NPU there is no hardware arbitration between pipes; software pipelining is the main determinant of throughput, and the compiler's scheduling quality directly decides whether an operator runs at 30% or 90% of nominal compute.
 
@@ -245,6 +251,18 @@ Reuse optimization is done by two kinds of passes in an NPU compiler.
 
 The first is graph-level operator fusion. The compiler recognizes fusible patterns in the operator graph (element-wise chains, GEMM + epilogue, reduction + scale), merges several operators into a fused op, and the back end generates a single kernel for it. TVM's FuseOps, MLIR's linalg fusion, and Huawei CANN's fusion engine are all of this kind.
 
+Over-fusion is the failure with negative value. The fused chain's live set stops fitting L1, so either allocation fails outright or the compiler inserts reshuffles that cost more than the DDR round trip fusion was supposed to save. Nothing upstream stops you: the elementwise fusion pass's entire profitability policy is `producer->hasOneUse()`. The tile-and-fuse hook is better informed, since it sees the `tensor.extract_slice` and could compute a footprint from it, but the shipped default accepts every candidate. The passes that decide fusion have no model of a transfer at all, so the decision cannot see the byte budget it is spending.
+
 The second is loop-level schedule transformation. When generating the concrete kernel, the compiler reorders (interchange), merges (fuse), and blocks (tile — sharing the underlying mechanism with section 2) the operator's loop nest to produce the instruction sequence with the best stationarity. Polyhedral compilation is the theoretical foundation; TVM's schedule, Halide's schedule, and MLIR's affine dialect are all built on the polyhedral model.
 
 A GPU compiler does both kinds of pass too, but on a GPU reuse optimization is more of a performance amplifier: skip fusion and it runs slowly, but it runs. On an NPU, fusion is often the precondition for running at all — an unfused kernel can fail compilation because an intermediate tensor exceeds L1 capacity. It's the same optimization-to-precondition phenomenon we saw with tiling and movement.
+
+Read the four failures in order and they escalate: a silent performance tax, a compile error, non-deterministic corruption, an optimization with negative value.
+
+| Lever | On an NPU (software-managed scratchpad) | On a GPU (hardware-arbitrated cache) |
+| --- | --- | --- |
+| Layout | silent reformat op, correct numbers, a DDR round trip per layer | slightly worse coalescing |
+| Tiling | tile exceeds L1 and compilation fails outright | lower occupancy, still runs |
+| Movement | missing barrier, non-deterministic corruption or a hung card | hardware arbitrates, still correct |
+| Reuse / Fusion | live set exceeds L1, allocation fails or fusion runs slower | one extra kernel launch |
+ That ordering is not a coincidence, and neither is where upstream MLIR stops helping. Above bufferization it is genuinely strong; `linalg.pack` states what a MAC-port layout is, the tiling drivers cut and fuse an iteration space, and none of it is worth rewriting. Below bufferization, where the scratchpad and the explicit transfer and the byte budget actually live, coverage thins to plumbing. The generic DMA op carries one stride level and no consumer; the multi-dimensional descriptor types that exist are vendor-scoped, in NVGPU and AMDGPU, templates to copy rather than infrastructure to reuse. That line is not a maturity gap. It marks where hardware stops arbitrating. A GPU compiler can hand the memory system its problem and be right often enough. An NPU compiler cannot, so everything below the line got built by whoever needed it, one target at a time.
