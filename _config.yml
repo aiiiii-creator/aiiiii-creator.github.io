@@ -20,6 +20,9 @@ exclude:
   - Gemfile
   - Gemfile.lock
 
+feed:
+  posts_limit: 50
+
 minima:
   social_links:
     - { platform: github, user_url: "https://github.com/aiiiii-creator" }
