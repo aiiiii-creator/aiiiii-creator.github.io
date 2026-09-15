@@ -26,7 +26,7 @@ Leg three, and the most critical, going vertical on the packaging side — EMIB 
 
 Look back at Tau's Law's four-level co-optimization system — device, circuit, chip, system — and it closely resembles Intel's combination. There isn't much novelty in this announcement; it's more that China is defining its own industrial methodology for the first time. Intel did it out of necessity after losing its process lead; Huawei is doing it as a deliberate choice, never having had a process lead. The former is a patch; the latter is a path.
 
-![The magic formula](/assets/images/posts/huawei-tau-law-and-logic-folding/a3db49f46b5e938d4378f6066501593b.jpg)
+![The four-level formulation of Tau's Law](/assets/images/posts/huawei-tau-law-and-logic-folding/tau-formula.png)
 
 ### 1. The RC product
 
@@ -34,7 +34,7 @@ To understand Tau's Law's technical core, go back to the most basic fact in circ
 
 The time constant τ, the product of resistance R and capacitance C, sets the propagation delay of a signal on a conductor. The essential bottleneck of chip performance was never how fast a transistor switches; it's how slowly a signal travels on the interconnect. Below 5 nm, interconnect RC delay's share of the critical path already exceeds 50%. In other words, geometric shrink has physically stopped solving the performance problem — it's making it worse: thinner wires mean more resistance, denser wires more capacitance.
 
-![As if He Tingbo were teaching a physics class](/assets/images/posts/huawei-tau-law-and-logic-folding/b4c9862e354093aa188a5b2dbe039ae4.jpg)
+![RC discharge: the time constant is where the delay lives](/assets/images/posts/huawei-tau-law-and-logic-folding/rc-discharge.png)
 
 Tau's Law's proposal to "replace geometric scaling with time scaling" is, at bottom, an acknowledgment of this physical reality, shifting the optimization target from transistor size to the time constant τ. It's a fundamental change of approach: no longer chasing smaller, but chasing faster signal propagation.
 
@@ -112,8 +112,6 @@ Over the past three years, large models have penetrated chip design faster than 
 These AI tools share one trait: they're good at optimization problems with clear boundaries and a single objective. RTL generation has a clear spec boundary and correctness verifiable by testbench. Floorplan optimization has a quantifiable PPA objective. Timing closure has explicit constraints and a structured search space. Verification has measurable coverage. These tasks happen to be where the chip-design industry's job growth of the past decade went; lots of young engineers do exactly these.
 
 The capabilities Tau's Law demands are exactly the reverse: cross-level, fuzzy-objective, far-reaching judgment. Should this block be folded? Weigh the delay gain, the heat-density penalty, the yield cost, the EDA toolchain's maturity. What does the physical critical path look like after folding? That requires anticipating back-end consequences at the architecture level. How does the Lingqu bus protocol cooperate with this chip's cache coherence? That requires understanding semantics both on-chip and across the system. When the thermal budget is broken, do you back off the architecture or change the packaging? That's a joint business, process, and design decision. The chip engineer's skill isn't only the care to beat LLM hallucination; it's carrying responsibility for a failed tape-out (kidding — not kidding).
-
-![](/assets/images/posts/huawei-tau-law-and-logic-folding/1e69c97ed117b960627199af404bd5d7.jpg)
 
 No large model can currently make this class of decision reliably. The reason isn't model size; it's that these decisions require cross-domain trade-offs without an explicit objective function. That's the steepest part of the LLM capability curve right now. You can give it a spec and have it write code, but you can't give it a multi-objective "I want this and that and also that" problem and have it make the architectural call.
 
