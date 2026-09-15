@@ -8,7 +8,7 @@ excerpt: "Layout, tiling, movement, reuse: the four levers for cutting data move
 
 *Layout, tiling, movement, reuse: the four levers for cutting data movement on a scratchpad machine — and why on an NPU each one is a precondition rather than an optimization.*
 
-I've been building an NPU compiler stack recently, and this is my attempt to organize how memory optimization works on one.
+I've been building an NPU compiler stack lately, and this is my attempt to lay out how memory optimization actually works on one.
 
 *This is a translation of a piece originally published on Zhihu on May 7, 2026.*
 
@@ -35,7 +35,7 @@ Layout is the byte order in which a tensor sits in physical memory. One logical 
 
 On an NPU the constraints on layout come from two places. First, the compute unit's interface: a fixed-shape MAC array (16×16, 128×128) needs to read a fixed number of values from specific offsets in the scratchpad every cycle, and the layout decides whether those values are physically contiguous. Second, the DMA burst shape: the highest-bandwidth form of a transfer from DDR into scratchpad is a large contiguous block, and the layout decides how much one DMA can move and how many descriptors it takes. A mismatched layout means either the MAC array gets only part of its data each cycle and idles, or the DMA degenerates into many small transfers that never fill the bandwidth.
 
-One example of each.
+One example from each operator class.
 
 ### GEMM / Linear
 
@@ -74,7 +74,7 @@ Tile size is set by four constraints together:
 
 The four conflict: hardware granularity wants tiles big, capacity wants them small, DMA efficiency wants them big, double buffering wants them small. The NPU compiler runs an integer search under these constraints for a legal, best-performing set of tile sizes.
 
-Again, one example per operator class.
+Again, one from each class.
 
 ### GEMM / Linear
 
@@ -168,7 +168,7 @@ A GPU compiler leans on hardware out-of-order execution to hide most scheduling 
 
 ## 4. Reuse / Fusion
 
-The previous sections were all about moving data faster. Reuse is the other direction: how much work can one byte do once it's on-chip?
+Everything so far has been about moving data faster. Reuse is the other direction: how much work can one byte do once it's on-chip?
 
 The metric is arithmetic intensity (AI), defined as the operator's total floating-point operations divided by the bytes read from the next level up. As noted at the start, the H100's roofline knee is around 300; an operator with an AI below that is bandwidth-bound, and only above it can the compute units saturate. The numbers differ on an NPU; the structure is the same.
 
@@ -199,7 +199,7 @@ For one GEMM, `C[i,j] += A[i,k] * B[k,j]`, the different orderings of the three 
 - **j innermost**: fix (i, k), stream along j. A[i, k] stays in a register while B[k, j] and C[i, j] stream past. Each A value is reused N times.
 - **i innermost**: fix (k, j), stream along i. B[k, j] stays in a register while A[i, k] and C[i, j] stream past. Each B value is reused M times.
 
-Which value stays put in a register decides which operand gets the highest reuse. On CPUs and GPUs this is a software choice of loop order; on a systolic array the same decision is welded into the hardware as the Output Stationary, Weight Stationary, and Input Stationary dataflows. It's the same reuse problem — software solves it by reordering loops, hardware solves it with the PE interconnect.
+Which value stays put in a register decides which operand gets the highest reuse. On CPUs and GPUs this is a software choice of loop order; on a systolic array the same decision is welded into the hardware as the Output Stationary, Weight Stationary, and Input Stationary dataflows. It is the same reuse problem — software solves it by reordering loops, hardware solves it with the PE interconnect.
 
 Real systems pick stationarity independently at each memory level. A typical GPU GEMM: OS at the register level (the output tile accumulates in registers), WS + IS at the shared-memory level (both weights and inputs cached), no stationarity at HBM (streamed). NPUs are similar: WS inside the systolic array (weights poured into the PEs and held), OS at L0C (partial sums accumulate), streaming from L1 and DDR.
 
